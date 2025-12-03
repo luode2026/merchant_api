@@ -1,0 +1,38 @@
+server:
+  admin:
+    port: 8080
+    mode: debug  # debug/release
+  app:
+    port: 8081
+    mode: debug
+
+database:
+  mysql:
+    host: 127.0.0.1
+    port: 8306
+    username: root
+    password: root
+    database: finance
+    charset: utf8mb4
+    parse_time: true
+    loc: Asia/Shanghai
+    max_idle_conns: 10
+    max_open_conns: 100
+
+redis:
+  host: 127.0.0.1
+  port: 8379
+  password: "123456"
+  db: 0
+  pool_size: 10
+
+jwt:
+  secret: your-secret-key-change-in-production
+  expire: 7200  # 2小时（秒）
+  issuer: merchant_api
+
+logger:
+  level: info  # debug/info/warn/error
+  format: json  # json/console
+  output: stdout  # stdout/file
+  file_path: logs/app.log

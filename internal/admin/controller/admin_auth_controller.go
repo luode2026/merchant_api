@@ -24,7 +24,9 @@ type LoginRequest struct {
 func (ctrl *AdminAuthController) Login(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.BadRequest(c, "参数错误: "+err.Error())
+		response.BadRequestWithKey(c, "error.invalid_params", map[string]interface{}{
+			"Error": err.Error(),
+		})
 		return
 	}
 
@@ -47,7 +49,7 @@ func (ctrl *AdminAuthController) Logout(c *gin.Context) {
 	// 从 header 获取 token
 	authHeader := c.GetHeader("Authorization")
 	if authHeader == "" || len(authHeader) < 8 {
-		response.BadRequest(c, "未提供认证信息")
+		response.BadRequestWithKey(c, "error.auth.no_credentials", nil)
 		return
 	}
 
@@ -61,5 +63,5 @@ func (ctrl *AdminAuthController) Logout(c *gin.Context) {
 		return
 	}
 
-	response.SuccessWithMsg(c, "登出成功", nil)
+	response.SuccessWithKey(c, "success.logout", nil)
 }

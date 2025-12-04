@@ -17,7 +17,7 @@ func AuthMiddleware(requiredRole string) gin.HandlerFunc {
 		// 获取 Authorization header
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			response.Unauthorized(c, "未提供认证信息")
+			response.UnauthorizedWithKey(c, "error.auth.no_credentials")
 			c.Abort()
 			return
 		}
@@ -25,7 +25,7 @@ func AuthMiddleware(requiredRole string) gin.HandlerFunc {
 		// 解析 Token
 		parts := strings.SplitN(authHeader, " ", 2)
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			response.Unauthorized(c, "认证格式错误")
+			response.UnauthorizedWithKey(c, "error.auth.invalid_format")
 			c.Abort()
 			return
 		}
@@ -33,14 +33,14 @@ func AuthMiddleware(requiredRole string) gin.HandlerFunc {
 		tokenString := parts[1]
 		claims, err := jwt.ParseToken(tokenString, config.GlobalConfig.JWT.Secret)
 		if err != nil {
-			response.Unauthorized(c, "Token 无效或已过期")
+			response.UnauthorizedWithKey(c, "error.auth.invalid_token")
 			c.Abort()
 			return
 		}
 
 		// 检查角色权限
 		if requiredRole != "" && claims.Role != requiredRole {
-			response.Forbidden(c, "权限不足")
+			response.ForbiddenWithKey(c, "error.auth.insufficient_permissions")
 			c.Abort()
 			return
 		}
@@ -61,7 +61,7 @@ func AdminAuthMiddleware() gin.HandlerFunc {
 		// 获取 Authorization header
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			response.Unauthorized(c, "未提供认证信息")
+			response.UnauthorizedWithKey(c, "error.auth.no_credentials")
 			c.Abort()
 			return
 		}
@@ -69,7 +69,7 @@ func AdminAuthMiddleware() gin.HandlerFunc {
 		// 解析 Token (格式: Bearer <token>)
 		parts := strings.SplitN(authHeader, " ", 2)
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			response.Unauthorized(c, "认证格式错误")
+			response.UnauthorizedWithKey(c, "error.auth.invalid_format")
 			c.Abort()
 			return
 		}

@@ -20,8 +20,9 @@ type ServerConfig struct {
 }
 
 type AdminServerConfig struct {
-	Port int    `mapstructure:"port"`
-	Mode string `mapstructure:"mode"`
+	Port   int    `mapstructure:"port"`
+	Mode   string `mapstructure:"mode"`
+	Domain string `mapstructure:"domain"`
 }
 
 type AppServerConfig struct {

@@ -1,6 +1,7 @@
 package response
 
 import (
+	"merchant_api/internal/pkg/i18n"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -71,4 +72,50 @@ func NotFound(c *gin.Context, msg string) {
 // InternalServerError 500 错误
 func InternalServerError(c *gin.Context, msg string) {
 	Error(c, http.StatusInternalServerError, msg)
+}
+
+// ============= i18n Support Functions =============
+
+// SuccessWithKey 成功响应（使用 i18n 消息键）
+func SuccessWithKey(c *gin.Context, messageKey string, data interface{}) {
+	msg := i18n.TSimple(c, messageKey)
+	c.JSON(http.StatusOK, Response{
+		Code: http.StatusOK,
+		Msg:  msg,
+		Data: data,
+	})
+}
+
+// ErrorWithKey 错误响应（使用 i18n 消息键）
+func ErrorWithKey(c *gin.Context, code int, messageKey string, templateData map[string]interface{}) {
+	msg := i18n.T(c, messageKey, templateData)
+	c.JSON(http.StatusOK, Response{
+		Code: code,
+		Msg:  msg,
+	})
+}
+
+// BadRequestWithKey 400 错误（使用 i18n 消息键）
+func BadRequestWithKey(c *gin.Context, messageKey string, templateData map[string]interface{}) {
+	ErrorWithKey(c, http.StatusBadRequest, messageKey, templateData)
+}
+
+// UnauthorizedWithKey 401 错误（使用 i18n 消息键）
+func UnauthorizedWithKey(c *gin.Context, messageKey string) {
+	ErrorWithKey(c, http.StatusUnauthorized, messageKey, nil)
+}
+
+// ForbiddenWithKey 403 错误（使用 i18n 消息键）
+func ForbiddenWithKey(c *gin.Context, messageKey string) {
+	ErrorWithKey(c, http.StatusForbidden, messageKey, nil)
+}
+
+// NotFoundWithKey 404 错误（使用 i18n 消息键）
+func NotFoundWithKey(c *gin.Context, messageKey string) {
+	ErrorWithKey(c, http.StatusNotFound, messageKey, nil)
+}
+
+// InternalServerErrorWithKey 500 错误（使用 i18n 消息键）
+func InternalServerErrorWithKey(c *gin.Context, messageKey string) {
+	ErrorWithKey(c, http.StatusInternalServerError, messageKey, nil)
 }

@@ -16,44 +16,59 @@ import (
 )
 
 var (
-	Q                   = new(Query)
-	MerMerchant         *merMerchant
-	MerMerchantAdmin    *merMerchantAdmin
-	MerMerchantCategory *merMerchantCategory
+	Q                      = new(Query)
+	MerMerchantAdmin       *merMerchantAdmin
+	MerMerchant            *merMerchant
+	MerMerchantCategory    *merMerchantCategory
+	MerStoreCategory       *merStoreCategory
+	MerStoreProduct        *merStoreProduct
+	MerStoreProductContent *merStoreProductContent
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
-	MerMerchant = &Q.MerMerchant
 	MerMerchantAdmin = &Q.MerMerchantAdmin
+	MerMerchant = &Q.MerMerchant
 	MerMerchantCategory = &Q.MerMerchantCategory
+	MerStoreCategory = &Q.MerStoreCategory
+	MerStoreProduct = &Q.MerStoreProduct
+	MerStoreProductContent = &Q.MerStoreProductContent
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:                  db,
-		MerMerchant:         newMerMerchant(db, opts...),
-		MerMerchantAdmin:    newMerMerchantAdmin(db, opts...),
-		MerMerchantCategory: newMerMerchantCategory(db, opts...),
+		db:                     db,
+		MerMerchantAdmin:       newMerMerchantAdmin(db, opts...),
+		MerMerchant:            newMerMerchant(db, opts...),
+		MerMerchantCategory:    newMerMerchantCategory(db, opts...),
+		MerStoreCategory:       newMerStoreCategory(db, opts...),
+		MerStoreProduct:        newMerStoreProduct(db, opts...),
+		MerStoreProductContent: newMerStoreProductContent(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	MerMerchant         merMerchant
-	MerMerchantAdmin    merMerchantAdmin
-	MerMerchantCategory merMerchantCategory
+	MerMerchantAdmin       merMerchantAdmin
+	MerMerchant            merMerchant
+	MerMerchantCategory    merMerchantCategory
+	MerStoreCategory       merStoreCategory
+	MerStoreProduct        merStoreProduct
+	MerStoreProductContent merStoreProductContent
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:                  db,
-		MerMerchant:         q.MerMerchant.clone(db),
-		MerMerchantAdmin:    q.MerMerchantAdmin.clone(db),
-		MerMerchantCategory: q.MerMerchantCategory.clone(db),
+		db:                     db,
+		MerMerchantAdmin:       q.MerMerchantAdmin.clone(db),
+		MerMerchant:            q.MerMerchant.clone(db),
+		MerMerchantCategory:    q.MerMerchantCategory.clone(db),
+		MerStoreCategory:       q.MerStoreCategory.clone(db),
+		MerStoreProduct:        q.MerStoreProduct.clone(db),
+		MerStoreProductContent: q.MerStoreProductContent.clone(db),
 	}
 }
 
@@ -67,24 +82,33 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:                  db,
-		MerMerchant:         q.MerMerchant.replaceDB(db),
-		MerMerchantAdmin:    q.MerMerchantAdmin.replaceDB(db),
-		MerMerchantCategory: q.MerMerchantCategory.replaceDB(db),
+		db:                     db,
+		MerMerchantAdmin:       q.MerMerchantAdmin.replaceDB(db),
+		MerMerchant:            q.MerMerchant.replaceDB(db),
+		MerMerchantCategory:    q.MerMerchantCategory.replaceDB(db),
+		MerStoreCategory:       q.MerStoreCategory.replaceDB(db),
+		MerStoreProduct:        q.MerStoreProduct.replaceDB(db),
+		MerStoreProductContent: q.MerStoreProductContent.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	MerMerchant         IMerMerchantDo
-	MerMerchantAdmin    IMerMerchantAdminDo
-	MerMerchantCategory IMerMerchantCategoryDo
+	MerMerchantAdmin       IMerMerchantAdminDo
+	MerMerchant            IMerMerchantDo
+	MerMerchantCategory    IMerMerchantCategoryDo
+	MerStoreCategory       IMerStoreCategoryDo
+	MerStoreProduct        IMerStoreProductDo
+	MerStoreProductContent IMerStoreProductContentDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		MerMerchant:         q.MerMerchant.WithContext(ctx),
-		MerMerchantAdmin:    q.MerMerchantAdmin.WithContext(ctx),
-		MerMerchantCategory: q.MerMerchantCategory.WithContext(ctx),
+		MerMerchantAdmin:       q.MerMerchantAdmin.WithContext(ctx),
+		MerMerchant:            q.MerMerchant.WithContext(ctx),
+		MerMerchantCategory:    q.MerMerchantCategory.WithContext(ctx),
+		MerStoreCategory:       q.MerStoreCategory.WithContext(ctx),
+		MerStoreProduct:        q.MerStoreProduct.WithContext(ctx),
+		MerStoreProductContent: q.MerStoreProductContent.WithContext(ctx),
 	}
 }
 

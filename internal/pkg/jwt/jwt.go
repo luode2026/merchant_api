@@ -10,15 +10,17 @@ import (
 // Claims JWT 声明
 type Claims struct {
 	UserID   uint   `json:"user_id"`
+	MerID    uint   `json:"mer_id"`
 	Username string `json:"username"`
 	Role     string `json:"role"` // admin/user
 	jwt.RegisteredClaims
 }
 
 // GenerateToken 生成 JWT Token
-func GenerateToken(userID uint, username, role, secret string, expire int) (string, error) {
+func GenerateToken(userID, merID uint, username, role, secret string, expire int) (string, error) {
 	claims := Claims{
 		UserID:   userID,
+		MerID:    merID,
 		Username: username,
 		Role:     role,
 		RegisteredClaims: jwt.RegisteredClaims{

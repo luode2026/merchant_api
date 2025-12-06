@@ -59,11 +59,24 @@ func SetupRouter() *gin.Engine {
 			storeCategoryController := controller.NewStoreCategoryController()
 			storeCategory := authorized.Group("/store_category")
 			{
+				storeCategory.GET("/options", storeCategoryController.GetOptions)
 				storeCategory.POST("", storeCategoryController.Create)
 				storeCategory.GET("", storeCategoryController.List)
 				storeCategory.GET("/:id", storeCategoryController.Get)
 				storeCategory.PUT("/:id", storeCategoryController.Update)
 				storeCategory.DELETE("/:id", storeCategoryController.Delete)
+			}
+
+			storeProductController := controller.NewStoreProductController()
+			product := authorized.Group("/product")
+			{
+				product.POST("", storeProductController.Create)
+				product.GET("", storeProductController.List)
+				product.GET("/:id", storeProductController.Get)
+				product.PUT("/:id", storeProductController.Update)
+				product.DELETE("/:id", storeProductController.Delete)
+				product.PATCH("/:id/listing", storeProductController.UpdateListingStatus)
+				product.PATCH("/:id/sold-out", storeProductController.UpdateSoldOutStatus)
 			}
 		}
 

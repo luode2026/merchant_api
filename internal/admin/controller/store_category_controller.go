@@ -178,6 +178,24 @@ func (ctrl *StoreCategoryController) Get(c *gin.Context) {
 	response.Success(c, category)
 }
 
+// GetOptions 获取分类选项
+func (ctrl *StoreCategoryController) GetOptions(c *gin.Context) {
+	merId, err := getMerId(c)
+	if err != nil {
+		response.InternalServerError(c, err.Error())
+		return
+	}
+
+	svc := service.NewStoreCategoryService(c.Request.Context())
+	options, err := svc.GetOptions(int32(merId))
+	if err != nil {
+		response.InternalServerError(c, "获取选项失败："+err.Error())
+		return
+	}
+
+	response.Success(c, options)
+}
+
 // Helper function to get mer_id from context safely
 func getMerId(c *gin.Context) (uint, error) {
 	merIdValue, exists := c.Get("mer_id")

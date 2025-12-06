@@ -70,3 +70,28 @@ func (s *StoreCategoryService) Get(id int32, merId int32) (*model.MerStoreCatego
 		Where(c.StoreCategoryID.Eq(id), c.MerID.Eq(merId)).
 		First()
 }
+
+// GetOptions 获取分类选项（下拉菜单）
+func (s *StoreCategoryService) GetOptions(merId int32) ([]map[string]interface{}, error) {
+	c := dao.MerStoreCategory
+
+	list, err := c.WithContext(s.ctx).
+		Where(c.MerID.Eq(merId)).
+		Select(c.StoreCategoryID, c.CateName).
+		Order(c.Sort.Desc(), c.StoreCategoryID.Desc()).
+		Find()
+
+	if err != nil {
+		return nil, err
+	}
+
+	options := make([]map[string]interface{}, 0, len(list))
+	for _, item := range list {
+		options = append(options, map[string]interface{}{
+			"value": item.StoreCategoryID,
+			"label": item.CateName,
+		})
+	}
+
+	return options, nil
+}

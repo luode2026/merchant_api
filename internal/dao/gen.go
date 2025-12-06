@@ -23,6 +23,7 @@ var (
 	MerStoreCategory       *merStoreCategory
 	MerStoreProduct        *merStoreProduct
 	MerStoreProductContent *merStoreProductContent
+	MerStoreProductSku     *merStoreProductSku
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
@@ -33,6 +34,7 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	MerStoreCategory = &Q.MerStoreCategory
 	MerStoreProduct = &Q.MerStoreProduct
 	MerStoreProductContent = &Q.MerStoreProductContent
+	MerStoreProductSku = &Q.MerStoreProductSku
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
@@ -44,6 +46,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		MerStoreCategory:       newMerStoreCategory(db, opts...),
 		MerStoreProduct:        newMerStoreProduct(db, opts...),
 		MerStoreProductContent: newMerStoreProductContent(db, opts...),
+		MerStoreProductSku:     newMerStoreProductSku(db, opts...),
 	}
 }
 
@@ -56,6 +59,7 @@ type Query struct {
 	MerStoreCategory       merStoreCategory
 	MerStoreProduct        merStoreProduct
 	MerStoreProductContent merStoreProductContent
+	MerStoreProductSku     merStoreProductSku
 }
 
 func (q *Query) Available() bool { return q.db != nil }
@@ -69,6 +73,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		MerStoreCategory:       q.MerStoreCategory.clone(db),
 		MerStoreProduct:        q.MerStoreProduct.clone(db),
 		MerStoreProductContent: q.MerStoreProductContent.clone(db),
+		MerStoreProductSku:     q.MerStoreProductSku.clone(db),
 	}
 }
 
@@ -89,6 +94,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		MerStoreCategory:       q.MerStoreCategory.replaceDB(db),
 		MerStoreProduct:        q.MerStoreProduct.replaceDB(db),
 		MerStoreProductContent: q.MerStoreProductContent.replaceDB(db),
+		MerStoreProductSku:     q.MerStoreProductSku.replaceDB(db),
 	}
 }
 
@@ -99,6 +105,7 @@ type queryCtx struct {
 	MerStoreCategory       IMerStoreCategoryDo
 	MerStoreProduct        IMerStoreProductDo
 	MerStoreProductContent IMerStoreProductContentDo
+	MerStoreProductSku     IMerStoreProductSkuDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
@@ -109,6 +116,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		MerStoreCategory:       q.MerStoreCategory.WithContext(ctx),
 		MerStoreProduct:        q.MerStoreProduct.WithContext(ctx),
 		MerStoreProductContent: q.MerStoreProductContent.WithContext(ctx),
+		MerStoreProductSku:     q.MerStoreProductSku.WithContext(ctx),
 	}
 }
 

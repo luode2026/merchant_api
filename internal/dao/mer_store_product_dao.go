@@ -35,7 +35,7 @@ func newMerStoreProduct(db *gorm.DB, opts ...gen.DOOption) merStoreProduct {
 	_merStoreProduct.Keyword = field.NewString(tableName, "keyword")
 	_merStoreProduct.IsShow = field.NewInt32(tableName, "is_show")
 	_merStoreProduct.IsDel = field.NewInt32(tableName, "is_del")
-	_merStoreProduct.MerStatus = field.NewBool(tableName, "mer_status")
+	_merStoreProduct.SaleStatus = field.NewBool(tableName, "sale_status")
 	_merStoreProduct.CateID = field.NewInt32(tableName, "cate_id")
 	_merStoreProduct.UnitName = field.NewString(tableName, "unit_name")
 	_merStoreProduct.Sort = field.NewInt32(tableName, "sort")
@@ -43,16 +43,14 @@ func newMerStoreProduct(db *gorm.DB, opts ...gen.DOOption) merStoreProduct {
 	_merStoreProduct.Price = field.NewFloat64(tableName, "price")
 	_merStoreProduct.Cost = field.NewFloat64(tableName, "cost")
 	_merStoreProduct.OtPrice = field.NewFloat64(tableName, "ot_price")
-	_merStoreProduct.Stock = field.NewInt32(tableName, "stock")
 	_merStoreProduct.IsGood = field.NewBool(tableName, "is_good")
 	_merStoreProduct.ProductType = field.NewInt32(tableName, "product_type")
-	_merStoreProduct.CreateAt = field.NewTime(tableName, "create_at")
+	_merStoreProduct.DeleteAt = field.NewInt32(tableName, "delete_at")
 	_merStoreProduct.Image = field.NewString(tableName, "image")
 	_merStoreProduct.SliderImage = field.NewString(tableName, "slider_image")
-	_merStoreProduct.Extend = field.NewString(tableName, "extend")
 	_merStoreProduct.RefundSwitch = field.NewInt32(tableName, "refund_switch")
-	_merStoreProduct.Delete_ = field.NewInt32(tableName, "delete")
-	_merStoreProduct.AutoOnTime = field.NewInt32(tableName, "auto_on_time")
+	_merStoreProduct.CreateAt = field.NewTime(tableName, "create_at")
+	_merStoreProduct.UpdateAt = field.NewTime(tableName, "update_at")
 	_merStoreProduct.BarCodeNumber = field.NewString(tableName, "bar_code_number")
 
 	_merStoreProduct.fillFieldMap()
@@ -70,9 +68,9 @@ type merStoreProduct struct {
 	StoreName     field.String  // 商品名称
 	StoreInfo     field.String  // 商品简介
 	Keyword       field.String  // 关键字
-	IsShow        field.Int32   // 商户 状态（0:未上架，1:上架，2:定时上架）
+	IsShow        field.Int32   // 商户 状态（0:未上架，1:上架）
 	IsDel         field.Int32   // 是否删除
-	MerStatus     field.Bool    // 商铺状态是否 1.正常 0. 非正常
+	SaleStatus    field.Bool    // 销售状态（0:售完，1:销售中）
 	CateID        field.Int32   // 分类id
 	UnitName      field.String  // 单位名
 	Sort          field.Int32   // 排序
@@ -80,17 +78,15 @@ type merStoreProduct struct {
 	Price         field.Float64 // 最低价格
 	Cost          field.Float64 // 成本价
 	OtPrice       field.Float64 // 原价
-	Stock         field.Int32   // 总库存
 	IsGood        field.Bool    // 是否优品推荐
 	ProductType   field.Int32   // 0.普通商品 1.秒杀商品,2.预售商品，3.助力商品，4.拼团商品
-	CreateAt      field.Time    // 添加时间
+	DeleteAt      field.Int32   // 删除时间
 	Image         field.String  // 商品图片
 	SliderImage   field.String  // 轮播图
-	Extend        field.String  // 扩展信息
 	RefundSwitch  field.Int32   // 是否支持退款
-	Delete_       field.Int32
-	AutoOnTime    field.Int32  // 自动上架时间
-	BarCodeNumber field.String // 商品条码
+	CreateAt      field.Time    // 添加时间
+	UpdateAt      field.Time    // 修改时间
+	BarCodeNumber field.String  // 商品条码
 
 	fieldMap map[string]field.Expr
 }
@@ -114,7 +110,7 @@ func (m *merStoreProduct) updateTableName(table string) *merStoreProduct {
 	m.Keyword = field.NewString(table, "keyword")
 	m.IsShow = field.NewInt32(table, "is_show")
 	m.IsDel = field.NewInt32(table, "is_del")
-	m.MerStatus = field.NewBool(table, "mer_status")
+	m.SaleStatus = field.NewBool(table, "sale_status")
 	m.CateID = field.NewInt32(table, "cate_id")
 	m.UnitName = field.NewString(table, "unit_name")
 	m.Sort = field.NewInt32(table, "sort")
@@ -122,16 +118,14 @@ func (m *merStoreProduct) updateTableName(table string) *merStoreProduct {
 	m.Price = field.NewFloat64(table, "price")
 	m.Cost = field.NewFloat64(table, "cost")
 	m.OtPrice = field.NewFloat64(table, "ot_price")
-	m.Stock = field.NewInt32(table, "stock")
 	m.IsGood = field.NewBool(table, "is_good")
 	m.ProductType = field.NewInt32(table, "product_type")
-	m.CreateAt = field.NewTime(table, "create_at")
+	m.DeleteAt = field.NewInt32(table, "delete_at")
 	m.Image = field.NewString(table, "image")
 	m.SliderImage = field.NewString(table, "slider_image")
-	m.Extend = field.NewString(table, "extend")
 	m.RefundSwitch = field.NewInt32(table, "refund_switch")
-	m.Delete_ = field.NewInt32(table, "delete")
-	m.AutoOnTime = field.NewInt32(table, "auto_on_time")
+	m.CreateAt = field.NewTime(table, "create_at")
+	m.UpdateAt = field.NewTime(table, "update_at")
 	m.BarCodeNumber = field.NewString(table, "bar_code_number")
 
 	m.fillFieldMap()
@@ -149,7 +143,7 @@ func (m *merStoreProduct) GetFieldByName(fieldName string) (field.OrderExpr, boo
 }
 
 func (m *merStoreProduct) fillFieldMap() {
-	m.fieldMap = make(map[string]field.Expr, 26)
+	m.fieldMap = make(map[string]field.Expr, 24)
 	m.fieldMap["product_id"] = m.ProductID
 	m.fieldMap["mer_id"] = m.MerID
 	m.fieldMap["store_name"] = m.StoreName
@@ -157,7 +151,7 @@ func (m *merStoreProduct) fillFieldMap() {
 	m.fieldMap["keyword"] = m.Keyword
 	m.fieldMap["is_show"] = m.IsShow
 	m.fieldMap["is_del"] = m.IsDel
-	m.fieldMap["mer_status"] = m.MerStatus
+	m.fieldMap["sale_status"] = m.SaleStatus
 	m.fieldMap["cate_id"] = m.CateID
 	m.fieldMap["unit_name"] = m.UnitName
 	m.fieldMap["sort"] = m.Sort
@@ -165,16 +159,14 @@ func (m *merStoreProduct) fillFieldMap() {
 	m.fieldMap["price"] = m.Price
 	m.fieldMap["cost"] = m.Cost
 	m.fieldMap["ot_price"] = m.OtPrice
-	m.fieldMap["stock"] = m.Stock
 	m.fieldMap["is_good"] = m.IsGood
 	m.fieldMap["product_type"] = m.ProductType
-	m.fieldMap["create_at"] = m.CreateAt
+	m.fieldMap["delete_at"] = m.DeleteAt
 	m.fieldMap["image"] = m.Image
 	m.fieldMap["slider_image"] = m.SliderImage
-	m.fieldMap["extend"] = m.Extend
 	m.fieldMap["refund_switch"] = m.RefundSwitch
-	m.fieldMap["delete"] = m.Delete_
-	m.fieldMap["auto_on_time"] = m.AutoOnTime
+	m.fieldMap["create_at"] = m.CreateAt
+	m.fieldMap["update_at"] = m.UpdateAt
 	m.fieldMap["bar_code_number"] = m.BarCodeNumber
 }
 

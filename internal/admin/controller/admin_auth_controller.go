@@ -49,7 +49,7 @@ func (ctrl *AdminAuthController) Logout(c *gin.Context) {
 	// 从 header 获取 token
 	authHeader := c.GetHeader("Authorization")
 	if authHeader == "" || len(authHeader) < 8 {
-		response.BadRequestWithKey(c, "error.auth.no_credentials", nil)
+		response.UnauthorizedWithKey(c, "error.auth.no_credentials")
 		return
 	}
 

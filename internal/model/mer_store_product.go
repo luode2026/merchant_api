@@ -18,7 +18,6 @@ type MerStoreProduct struct {
 	StoreInfo     string     `gorm:"column:store_info;type:varchar(256);not null;comment:商品简介" json:"store_info"`                                                 // 商品简介
 	Keyword       string     `gorm:"column:keyword;type:varchar(128);not null;comment:关键字" json:"keyword"`                                                        // 关键字
 	IsShow        int32      `gorm:"column:is_show;type:tinyint unsigned;not null;default:1;comment:商户 状态（0:未上架，1:上架）" json:"is_show"`                            // 商户 状态（0:未上架，1:上架）
-	IsDel         int32      `gorm:"column:is_del;type:tinyint unsigned;not null;comment:是否删除" json:"is_del"`                                                     // 是否删除
 	SaleStatus    *bool      `gorm:"column:sale_status;type:tinyint(1);default:1;comment:销售状态（0:售完，1:销售中）" json:"sale_status"`                                    // 销售状态（0:售完，1:销售中）
 	CateID        int32      `gorm:"column:cate_id;type:int;not null;index:cate_id,priority:1;comment:分类id" json:"cate_id"`                                       // 分类id
 	UnitName      string     `gorm:"column:unit_name;type:varchar(16);not null;comment:单位名" json:"unit_name"`                                                     // 单位名

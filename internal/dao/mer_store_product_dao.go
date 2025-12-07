@@ -34,7 +34,6 @@ func newMerStoreProduct(db *gorm.DB, opts ...gen.DOOption) merStoreProduct {
 	_merStoreProduct.StoreInfo = field.NewString(tableName, "store_info")
 	_merStoreProduct.Keyword = field.NewString(tableName, "keyword")
 	_merStoreProduct.IsShow = field.NewInt32(tableName, "is_show")
-	_merStoreProduct.IsDel = field.NewInt32(tableName, "is_del")
 	_merStoreProduct.SaleStatus = field.NewBool(tableName, "sale_status")
 	_merStoreProduct.CateID = field.NewInt32(tableName, "cate_id")
 	_merStoreProduct.UnitName = field.NewString(tableName, "unit_name")
@@ -69,7 +68,6 @@ type merStoreProduct struct {
 	StoreInfo     field.String  // 商品简介
 	Keyword       field.String  // 关键字
 	IsShow        field.Int32   // 商户 状态（0:未上架，1:上架）
-	IsDel         field.Int32   // 是否删除
 	SaleStatus    field.Bool    // 销售状态（0:售完，1:销售中）
 	CateID        field.Int32   // 分类id
 	UnitName      field.String  // 单位名
@@ -109,7 +107,6 @@ func (m *merStoreProduct) updateTableName(table string) *merStoreProduct {
 	m.StoreInfo = field.NewString(table, "store_info")
 	m.Keyword = field.NewString(table, "keyword")
 	m.IsShow = field.NewInt32(table, "is_show")
-	m.IsDel = field.NewInt32(table, "is_del")
 	m.SaleStatus = field.NewBool(table, "sale_status")
 	m.CateID = field.NewInt32(table, "cate_id")
 	m.UnitName = field.NewString(table, "unit_name")
@@ -143,14 +140,13 @@ func (m *merStoreProduct) GetFieldByName(fieldName string) (field.OrderExpr, boo
 }
 
 func (m *merStoreProduct) fillFieldMap() {
-	m.fieldMap = make(map[string]field.Expr, 24)
+	m.fieldMap = make(map[string]field.Expr, 23)
 	m.fieldMap["product_id"] = m.ProductID
 	m.fieldMap["mer_id"] = m.MerID
 	m.fieldMap["store_name"] = m.StoreName
 	m.fieldMap["store_info"] = m.StoreInfo
 	m.fieldMap["keyword"] = m.Keyword
 	m.fieldMap["is_show"] = m.IsShow
-	m.fieldMap["is_del"] = m.IsDel
 	m.fieldMap["sale_status"] = m.SaleStatus
 	m.fieldMap["cate_id"] = m.CateID
 	m.fieldMap["unit_name"] = m.UnitName

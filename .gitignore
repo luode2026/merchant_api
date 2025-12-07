@@ -4,6 +4,7 @@ bin/
 *.dll
 *.so
 *.dylib
+uploads/
 
 # Test binary
 *.test

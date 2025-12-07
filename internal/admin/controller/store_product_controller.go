@@ -165,7 +165,7 @@ func (ctrl *StoreProductController) List(c *gin.Context) {
 
 // UpdateListingStatusRequest 更新上架状态请求
 type UpdateListingStatusRequest struct {
-	IsShow int32 `json:"is_show" binding:"required,oneof=0 1"`
+	IsShow *int32 `json:"is_show" binding:"required,oneof=0 1"`
 }
 
 // UpdateListingStatus 更新上架状态
@@ -192,7 +192,7 @@ func (ctrl *StoreProductController) UpdateListingStatus(c *gin.Context) {
 	}
 
 	svc := service.NewStoreProductService(c.Request.Context())
-	if err := svc.UpdateListingStatus(int32(id), int32(merID), req.IsShow); err != nil {
+	if err := svc.UpdateListingStatus(int32(id), int32(merID), *req.IsShow); err != nil {
 		response.BadRequestWithKey(c, "error.product.update_listing_failed", map[string]interface{}{
 			"Error": err.Error(),
 		})
@@ -204,7 +204,7 @@ func (ctrl *StoreProductController) UpdateListingStatus(c *gin.Context) {
 
 // UpdateSoldOutStatusRequest 更新售完状态请求
 type UpdateSoldOutStatusRequest struct {
-	SaleStatus bool `json:"sale_status" binding:"required"`
+	SaleStatus *bool `json:"sale_status" binding:"required"`
 }
 
 // UpdateSoldOutStatus 更新售完状态
@@ -231,7 +231,7 @@ func (ctrl *StoreProductController) UpdateSoldOutStatus(c *gin.Context) {
 	}
 
 	svc := service.NewStoreProductService(c.Request.Context())
-	if err := svc.UpdateSoldOutStatus(int32(id), int32(merID), req.SaleStatus); err != nil {
+	if err := svc.UpdateSoldOutStatus(int32(id), int32(merID), *req.SaleStatus); err != nil {
 		response.BadRequestWithKey(c, "error.product.update_soldout_failed", map[string]interface{}{
 			"Error": err.Error(),
 		})

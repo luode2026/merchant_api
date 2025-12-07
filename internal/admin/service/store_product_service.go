@@ -24,7 +24,7 @@ func NewStoreProductService(ctx context.Context) *StoreProductService {
 // CreateProductRequest 创建商品请求
 type CreateProductRequest struct {
 	StoreName     string                `json:"store_name" binding:"required"`
-	StoreInfo     string                `json:"store_info" binding:"required"`
+	StoreInfo     *string               `json:"store_info"`
 	Keyword       string                `json:"keyword"`
 	CateID        int32                 `json:"cate_id" binding:"required"`
 	UnitName      string                `json:"unit_name" binding:"required"`
@@ -38,7 +38,7 @@ type CreateProductRequest struct {
 	SliderImage   string                `json:"slider_image"`
 	RefundSwitch  *int32                `json:"refund_switch"`
 	BarCodeNumber *string               `json:"bar_code_number"`
-	Content       string                `json:"content" binding:"required"`
+	Content       *string               `json:"content"`
 	Skus          []CreateProductSkuReq `json:"skus" binding:"required,min=1"`
 }
 
@@ -87,10 +87,9 @@ func (s *StoreProductService) Create(req *CreateProductRequest, merID int32) (*P
 		product := &model.MerStoreProduct{
 			MerID:         merID,
 			StoreName:     req.StoreName,
-			StoreInfo:     req.StoreInfo,
+			StoreInfo:     "",
 			Keyword:       req.Keyword,
-			IsShow:        1, // 默认上架
-			IsDel:         0,
+			IsShow:        1,             // 默认上架
 			SaleStatus:    boolPtr(true), // 默认销售中
 			CateID:        req.CateID,
 			UnitName:      req.UnitName,
@@ -108,14 +107,22 @@ func (s *StoreProductService) Create(req *CreateProductRequest, merID int32) (*P
 			BarCodeNumber: req.BarCodeNumber,
 		}
 
+		if req.StoreInfo != nil {
+			product.StoreInfo = *req.StoreInfo
+		}
+
 		if err := dao.MerStoreProduct.WithContext(s.ctx).Create(product); err != nil {
 			return fmt.Errorf("创建商品失败: %w", err)
 		}
 
 		// 创建商品详情
+		contentStr := ""
+		if req.Content != nil {
+			contentStr = *req.Content
+		}
 		content := &model.MerStoreProductContent{
 			ProductID: product.ProductID,
-			Content:   req.Content,
+			Content:   contentStr,
 		}
 		if err := dao.MerStoreProductContent.WithContext(s.ctx).Create(content); err != nil {
 			return fmt.Errorf("创建商品详情失败: %w", err)
@@ -163,7 +170,7 @@ func (s *StoreProductService) Update(productID int32, req *CreateProductRequest,
 	product, err := dao.MerStoreProduct.WithContext(s.ctx).
 		Where(dao.MerStoreProduct.ProductID.Eq(productID)).
 		Where(dao.MerStoreProduct.MerID.Eq(merID)).
-		Where(dao.MerStoreProduct.IsDel.Eq(0)).
+		Where(dao.MerStoreProduct.DeleteAt.IsNull()).
 		First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -190,38 +197,44 @@ func (s *StoreProductService) Update(productID int32, req *CreateProductRequest,
 
 		// 更新商品主表
 		now := time.Now()
+		updates := map[string]interface{}{
+			"store_name":      req.StoreName,
+			"keyword":         req.Keyword,
+			"cate_id":         req.CateID,
+			"unit_name":       req.UnitName,
+			"sort":            req.Sort,
+			"price":           req.Price,
+			"cost":            req.Cost,
+			"ot_price":        req.OtPrice,
+			"is_good":         req.IsGood,
+			"product_type":    req.ProductType,
+			"image":           req.Image,
+			"slider_image":    req.SliderImage,
+			"refund_switch":   req.RefundSwitch,
+			"bar_code_number": req.BarCodeNumber,
+			"update_at":       now,
+		}
+		if req.StoreInfo != nil {
+			updates["store_info"] = *req.StoreInfo
+		}
+
 		_, err := dao.MerStoreProduct.WithContext(s.ctx).
 			Where(dao.MerStoreProduct.ProductID.Eq(productID)).
-			Updates(map[string]interface{}{
-				"store_name":      req.StoreName,
-				"store_info":      req.StoreInfo,
-				"keyword":         req.Keyword,
-				"cate_id":         req.CateID,
-				"unit_name":       req.UnitName,
-				"sort":            req.Sort,
-				"price":           req.Price,
-				"cost":            req.Cost,
-				"ot_price":        req.OtPrice,
-				"is_good":         req.IsGood,
-				"product_type":    req.ProductType,
-				"image":           req.Image,
-				"slider_image":    req.SliderImage,
-				"refund_switch":   req.RefundSwitch,
-				"bar_code_number": req.BarCodeNumber,
-				"update_at":       now,
-			})
+			Updates(updates)
 		if err != nil {
 			return fmt.Errorf("更新商品失败: %w", err)
 		}
 
 		// 更新商品详情
-		_, err = dao.MerStoreProductContent.WithContext(s.ctx).
-			Where(dao.MerStoreProductContent.ProductID.Eq(productID)).
-			Updates(map[string]interface{}{
-				"content": req.Content,
-			})
-		if err != nil {
-			return fmt.Errorf("更新商品详情失败: %w", err)
+		if req.Content != nil {
+			_, err = dao.MerStoreProductContent.WithContext(s.ctx).
+				Where(dao.MerStoreProductContent.ProductID.Eq(productID)).
+				Updates(map[string]interface{}{
+					"content": *req.Content,
+				})
+			if err != nil {
+				return fmt.Errorf("更新商品详情失败: %w", err)
+			}
 		}
 
 		// 收集请求中的SKU ID
@@ -295,7 +308,7 @@ func (s *StoreProductService) Delete(productID int32, merID int32) error {
 	_, err := dao.MerStoreProduct.WithContext(s.ctx).
 		Where(dao.MerStoreProduct.ProductID.Eq(productID)).
 		Where(dao.MerStoreProduct.MerID.Eq(merID)).
-		Where(dao.MerStoreProduct.IsDel.Eq(0)).
+		Where(dao.MerStoreProduct.DeleteAt.IsNull()).
 		First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -305,10 +318,11 @@ func (s *StoreProductService) Delete(productID int32, merID int32) error {
 	}
 
 	// 软删除
+	now := int32(time.Now().Unix())
 	_, err = dao.MerStoreProduct.WithContext(s.ctx).
 		Where(dao.MerStoreProduct.ProductID.Eq(productID)).
 		Updates(map[string]interface{}{
-			"is_del": 1,
+			"delete_at": now,
 		})
 	return err
 }
@@ -319,7 +333,7 @@ func (s *StoreProductService) Get(productID int32, merID int32) (*ProductDetailR
 	product, err := dao.MerStoreProduct.WithContext(s.ctx).
 		Where(dao.MerStoreProduct.ProductID.Eq(productID)).
 		Where(dao.MerStoreProduct.MerID.Eq(merID)).
-		Where(dao.MerStoreProduct.IsDel.Eq(0)).
+		Where(dao.MerStoreProduct.DeleteAt.IsNull()).
 		First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -376,7 +390,7 @@ func (s *StoreProductService) GetList(merID int32, req *ListRequest) ([]*Product
 
 	query := p.WithContext(s.ctx).
 		Where(p.MerID.Eq(merID)).
-		Where(p.IsDel.Eq(0))
+		Where(p.DeleteAt.IsNull())
 
 	// 分类筛选
 	if req.CateID != nil {
@@ -449,7 +463,7 @@ func (s *StoreProductService) UpdateListingStatus(productID int32, merID int32, 
 	_, err := dao.MerStoreProduct.WithContext(s.ctx).
 		Where(dao.MerStoreProduct.ProductID.Eq(productID)).
 		Where(dao.MerStoreProduct.MerID.Eq(merID)).
-		Where(dao.MerStoreProduct.IsDel.Eq(0)).
+		Where(dao.MerStoreProduct.DeleteAt.IsNull()).
 		First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -473,7 +487,7 @@ func (s *StoreProductService) UpdateSoldOutStatus(productID int32, merID int32, 
 	_, err := dao.MerStoreProduct.WithContext(s.ctx).
 		Where(dao.MerStoreProduct.ProductID.Eq(productID)).
 		Where(dao.MerStoreProduct.MerID.Eq(merID)).
-		Where(dao.MerStoreProduct.IsDel.Eq(0)).
+		Where(dao.MerStoreProduct.DeleteAt.IsNull()).
 		First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
